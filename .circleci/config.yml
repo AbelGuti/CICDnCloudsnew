@@ -8,13 +8,19 @@ jobs:
       - checkout
       - run:
           name: aws
-          command: aws --version
+          command: |
+            aws --version
+            ACCOUNT_ROLE=$(aws sts assume-role --role-arn ${K8S_ROLE} --role-session-name k8s)
+            export AWS_ACCESS_KEY_ID=$(echo "${ACCOUNT_ROLE}" | jq -r '.Credentials.AccessKeyId')
+            export AWS_SECRET_ACCESS_KEY=$(echo "${ACCOUNT_ROLE}" | jq -r '.Credentials.SecretAccessKey')
+            export AWS_SESSION_TOKEN=$(echo "${ACCOUNT_ROLE}" | jq -r '.Credentials.SessionToken')
+            aws eks update-kubeconfig --name nclouds-cluster --region us-west-2
       - run:
           name: k8s
-          command: kubectl version --short
+          command: kubectl get pods
       - run:
           name: helm
-          command: helm version
+          command: helm --helm
 workflows:
   say-hello-workflow:
     jobs:
