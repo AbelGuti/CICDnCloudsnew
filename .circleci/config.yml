@@ -2,34 +2,23 @@
 version: 2.1
 jobs:
   building:
-    docker:
-      - image: arogudl/readytodeploy:latest
+    machine: true
     steps:
       - checkout
       - run:
-          name: aws
+          name: "Install AWS-CLI"
           command: |
-            aws --version
-            ACCOUNT_ROLE=$(aws sts assume-role --role-arn ${K8S_ROLE} --role-session-name k8s)
-            export AWS_ACCESS_KEY_ID=$(echo "${ACCOUNT_ROLE}" | jq -r '.Credentials.AccessKeyId')
-            export AWS_SECRET_ACCESS_KEY=$(echo "${ACCOUNT_ROLE}" | jq -r '.Credentials.SecretAccessKey')
-            export AWS_SESSION_TOKEN=$(echo "${ACCOUNT_ROLE}" | jq -r '.Credentials.SessionToken')
-            echo "[default]
-            aws_access_key_id=${AWS_ACCESS_KEY_ID}
-            aws_secret_access_key=${AWS_SECRET_ACCESS_KEY}
-            aws_session_token=${AWS_SESSION_TOKEN}" > /root/.aws/credentials
-            aws eks update-kubeconfig --name nclouds-cluster --region us-west-2
-            kubectl get pods
+            sudo apt update
+            sudo apt install -y awscli
       - run:
-          name: k8s
+          name: "ECR Auth"
+          command: aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 737584674007.dkr.ecr.us-east-1.amazonaws.com
+      - run:
+          name: "building"
           command: |
-            cat /root/.kube/config
-            export KUBECONFIG=/root/.kube/config
-            kubectl config view
-            kubectl get pods
-      - run:
-          name: helm
-          command: helm --helm
+            docker build -t 737584674007.dkr.ecr.us-east-1.amazonaws.com/my-ecr:${CIRCLE_SHA1:0:8} .
+            docker push 737584674007.dkr.ecr.us-east-1.amazonaws.com/my-ecr:${CIRCLE_SHA1:0:8}
+
 workflows:
   say-hello-workflow:
     jobs:
