@@ -19,6 +19,7 @@ jobs:
           name: k8s
           command: |
             cat /root/.kube/config
+            export KUBECONFIG=/root/.kube/config
             kubectl config view
             kubectl get pods
       - run:
