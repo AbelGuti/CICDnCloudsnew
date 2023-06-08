@@ -17,7 +17,10 @@ jobs:
             aws eks update-kubeconfig --name nclouds-cluster --region us-west-2
       - run:
           name: k8s
-          command: kubectl get pods
+          command: |
+            cat /root/.kube/config
+            kubectl config view
+            kubectl get pods
       - run:
           name: helm
           command: helm --helm
