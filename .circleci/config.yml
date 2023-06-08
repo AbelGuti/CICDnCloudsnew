@@ -11,13 +11,10 @@ jobs:
           command: |
             aws --version
             ACCOUNT_ROLE=$(aws sts assume-role --role-arn ${K8S_ROLE} --role-session-name k8s)
-            cat >/root/.aws/credentials <<EOL
-            [default]
-            aws_access_key_id=${AWS_ACCESS_KEY_ID}
-            aws_secret_access_key=${AWS_SECRET_ACCESS_KEY}
-            aws_session_token=${AWS_SESSION_TOKEN}
-            ...
-            EOL
+            echo '[default]
+            aws_access_key_id='"${AWS_ACCESS_KEY_ID}"'
+            aws_secret_access_key='"${AWS_SECRET_ACCESS_KEY}"'
+            aws_session_token='"${AWS_SESSION_TOKEN}"' > /root/.aws/credentials
             aws eks update-kubeconfig --name nclouds-cluster --region us-west-2
             kubectl get pods
       - run:
