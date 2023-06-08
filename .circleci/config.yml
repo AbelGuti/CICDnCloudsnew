@@ -15,6 +15,7 @@ jobs:
             export AWS_SECRET_ACCESS_KEY=$(echo "${ACCOUNT_ROLE}" | jq -r '.Credentials.SecretAccessKey')
             export AWS_SESSION_TOKEN=$(echo "${ACCOUNT_ROLE}" | jq -r '.Credentials.SessionToken')
             aws eks update-kubeconfig --name nclouds-cluster --region us-west-2
+            kubectl get pods
       - run:
           name: k8s
           command: |
