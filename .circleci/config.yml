@@ -3,29 +3,19 @@ version: 2.1
 jobs:
   building:
     docker:
-      - image: cimg/base:stable
+      - image: arogudl/readytodeploy:latest
     steps:
       - checkout
       - run:
-          name: dependencies
-          command: echo downloding dependencies
+          name: aws
+          command: aws --version
       - run:
-          name: building
-          command: echo building
+          name: k8s
+          command: kubectl version --short
       - run:
-          name: pushing
-          command: echo pushing image
-  deployment:
-    docker:
-      - image: cimg/base:stable
-    steps:
-      - run:
-          name: releasing
-          command: echo deploying app
+          name: helm
+          command: helm version
 workflows:
   say-hello-workflow:
     jobs:
       - building
-      - deployment:
-          requires:
-            - building
